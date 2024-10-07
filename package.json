@@ -1,0 +1,17 @@
+{
+  "name": "08-01-task-manager",
+  "version": "1.0.0",
+  "description": "This assignment aims to reinforce the understanding and usage of the 'if...else' statements in JavaScript.",
+  "main": "08-01-task-manager.js",
+  "type": "module",
+  "scripts": {
+    "start": "node 08-01-task-manager.js",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.11.3"
+  }
+}
