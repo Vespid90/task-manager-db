@@ -43,26 +43,28 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-function addTask() {
-  rl.question('\nQuelle tâche voulez-vous ajouter?\n', (task) => {
-    const currentTime = new Date();
-    const query = `INSERT INTO tasks (description, status, created_at, updated_at) VALUES (?, ?, ?, ?)`;
-    connection.query(query, [task, 'À faire', currentTime, currentTime])
-        .then(() => {
-          console.log(`\nTâche "${task}" ajoutée à la base de données !\n`);
-          toDoList();
-        })
-        .catch(err => {
+async function addTask() {
+  rl.question('\nQuelle tâche voulez-vous ajouter?\n', async(task) => {
+     try {
+      const currentTime = new Date();
+      const query = `INSERT INTO tasks (description, status, created_at, updated_at)
+                     VALUES (?, ?, ?, ?)`;
+      await connection.query(query, [task, 'À faire', currentTime, currentTime]);
+
+      console.log(`\nTâche "${task}" ajoutée à la base de données !\n`);
+      toDoList();
+  } catch(err) {
           console.error(`Erreur lors de l'ajout de la tâche:`, err);
           toDoList();
-        });
+        }
   });
 }
 
 // Fonction qui affiche toutes les tâches stockées dans la base de données
-function seeAllTasks() {
-  connection.query('SELECT * FROM tasks')
-      .then(([rows]) => {
+async function seeAllTasks() {
+  try {
+    const [rows] = await connection.query('SELECT * FROM tasks')
+
         if (rows.length === 0) {
           console.log('Aucune tâche à afficher.');
         } else {
@@ -71,11 +73,10 @@ function seeAllTasks() {
           });
         }
         toDoList();
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Erreur lors de la récupération des tâches:', err);
         toDoList();
-      });
+      }
 }
 
 // Supprime une tâche de la base de données
