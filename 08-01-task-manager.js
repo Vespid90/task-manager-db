@@ -80,9 +80,9 @@ async function seeAllTasks() {
 }
 
 // Supprime une tâche de la base de données
-function deleteTask() {
-  connection.query('SELECT * FROM tasks')
-      .then(([rows]) => {
+async function deleteTask() {
+    try {
+  const [rows] = await connection.query('SELECT * FROM tasks');
         if (rows.length === 0) {
           console.log('Aucune tâche à supprimer.');
           toDoList();
@@ -93,34 +93,33 @@ function deleteTask() {
           console.log(`${index + 1}: ${task.description} - ${task.status}`);
         });
 
-        rl.question('\nQuelle tâche voulez-vous supprimer? (indiquez le numéro)\n', (number) => {
+        rl.question('\nQuelle tâche voulez-vous supprimer? (indiquez le numéro)\n', async(number) => {
           const taskToDelete = rows[number - 1];
           if (taskToDelete) {
-            connection.query('DELETE FROM tasks WHERE id = ?', [taskToDelete.id])
-                .then(() => {
+              try {
+            await connection.query('DELETE FROM tasks WHERE id = ?', [taskToDelete.id]);
+
                   console.log(`\nLa tâche "${taskToDelete.description}" a été supprimée !\n`);
                   toDoList();
-                })
-                .catch(err => {
+                } catch(err) {
                   console.error('Erreur lors de la suppression de la tâche:', err);
                   toDoList();
-                });
+                }
           } else {
             console.log('Numéro de tâche invalide.');
             toDoList();
           }
         });
-      })
-      .catch(err => {
+      } catch(err) {
         console.error('Erreur lors de la récupération des tâches:', err);
         toDoList();
-      });
+      }
 }
 
 // Marquer une tâche comme accomplie dans la base de données
-function markTask() {
-  connection.query('SELECT * FROM tasks')
-      .then(([rows]) => {
+async function markTask() {
+    try {
+  const [rows] = await connection.query('SELECT * FROM tasks')
         if (rows.length === 0) {
           console.log('Aucune tâche à marquer comme accomplie.');
           toDoList();
@@ -131,28 +130,26 @@ function markTask() {
           console.log(`${index + 1}: ${task.description} - ${task.status}`);
         });
 
-        rl.question('\nQuelle tâche voulez-vous indiquer comme accomplie? (indiquez le numéro)\n', (number) => {
+        rl.question('\nQuelle tâche voulez-vous indiquer comme accomplie? (indiquez le numéro)\n', async(number) => {
           const taskToUpdate = rows[number - 1];
           if (taskToUpdate) {
-            connection.query('UPDATE tasks SET status = ? WHERE id = ?', ['Accomplie', taskToUpdate.id])
-                .then(() => {
-                  console.log(`\nLa tâche "${taskToUpdate.description}" a été marquée comme accomplie !\n`);
-                  toDoList();
-                })
-                .catch(err => {
+              try {
+              await connection.query('UPDATE tasks SET status = ? WHERE id = ?', ['Accomplie', taskToUpdate.id])
+              console.log(`\nLa tâche "${taskToUpdate.description}" a été marquée comme accomplie !\n`);
+              toDoList()
+          } catch (err) {
                   console.error('Erreur lors de la mise à jour de la tâche:', err);
                   toDoList();
-                });
+                }
           } else {
             console.log('Numéro de tâche invalide.');
             toDoList();
           }
         });
-      })
-      .catch(err => {
+      } catch(err) {
         console.error('Erreur lors de la récupération des tâches:', err);
         toDoList();
-      });
+      }
 }
 
 // Menu principal
@@ -164,19 +161,19 @@ function toDoList() {
       '3. Supprimer une tâche \n' +
       '4. Marquer une tâche comme accomplie \n' +
       '5. Quitter le gestionnaire de tâches\n',
-      (answer) => {
+      async (answer) => {
         switch (answer) {
           case '1':
-            seeAllTasks();
+            await seeAllTasks();
             break;
           case '2':
-            addTask();
+            await addTask();
             break;
           case '3':
-            deleteTask();
+            await deleteTask();
             break;
           case '4':
-            markTask();
+            await markTask();
             break;
           case '5':
             console.log('Au revoir !');
